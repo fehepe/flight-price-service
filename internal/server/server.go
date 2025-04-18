@@ -6,39 +6,48 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
+	"github.com/fehepe/flight-price-service/internal/config"
 	"github.com/fehepe/flight-price-service/internal/handlers"
 	"github.com/fehepe/flight-price-service/internal/middleware"
 	"github.com/gorilla/mux"
 )
 
-// NewRouter wires up routes and middleware.
+// NewRouter sets up routes, applying logging globally and auth on protected endpoints.
 func NewRouter() *mux.Router {
 	r := mux.NewRouter()
+
+	// Global middleware
 	r.Use(middleware.Logging)
 	r.StrictSlash(true)
 
+	// Public endpoints
 	r.HandleFunc("/health", handlers.HealthCheck).Methods(http.MethodGet)
-	r.HandleFunc("/flights/search", handlers.GetFlights).Methods(http.MethodGet)
+	r.HandleFunc("/auth/token", handlers.GenerateToken).Methods(http.MethodPost)
+
+	// Protected endpoints: flights search
+	flights := r.PathPrefix("/flights").Subrouter()
+	flights.Use(middleware.Auth)
+	flights.HandleFunc("/search", handlers.GetFlights).Methods(http.MethodGet)
 
 	return r
 }
 
-// Run starts the HTTP server and handles graceful shutdown.
+// Run starts the HTTP server and gracefully shuts it down on interrupt signals.
 func Run(addr string) error {
 	srv := &http.Server{
 		Addr:           addr,
 		Handler:        NewRouter(),
-		ReadTimeout:    time.Duration(getEnvInt("READ_TIMEOUT", 5)) * time.Second,
-		WriteTimeout:   time.Duration(getEnvInt("WRITE_TIMEOUT", 10)) * time.Second,
-		IdleTimeout:    time.Duration(getEnvInt("IDLE_TIMEOUT", 120)) * time.Second,
+		ReadTimeout:    time.Duration(config.GetEnvInt("READ_TIMEOUT", 5)) * time.Second,
+		WriteTimeout:   time.Duration(config.GetEnvInt("WRITE_TIMEOUT", 10)) * time.Second,
+		IdleTimeout:    time.Duration(config.GetEnvInt("IDLE_TIMEOUT", 120)) * time.Second,
 		MaxHeaderBytes: 1 << 20,
 		ErrorLog:       log.New(os.Stdout, "server: ", log.LstdFlags),
 	}
 
+	// Run server in background
 	go func() {
 		log.Printf("Server listening on %s", addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -46,6 +55,7 @@ func Run(addr string) error {
 		}
 	}()
 
+	// Wait for termination signal
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
@@ -55,14 +65,4 @@ func Run(addr string) error {
 	defer cancel()
 
 	return srv.Shutdown(ctx)
-}
-
-// getEnvInt reads an env var into int or returns fallback.
-func getEnvInt(key string, fallback int) int {
-	if v, ok := os.LookupEnv(key); ok {
-		if iv, err := strconv.Atoi(v); err == nil {
-			return iv
-		}
-	}
-	return fallback
 }
