@@ -8,13 +8,10 @@ This service allows users to search for flights using multiple providers, aggreg
 - 📡 **Amadeus API Integration** (OAuth2 and flight offer endpoints)
 - 🛡️ **JWT Authentication** support (with token generation endpoint)
 - 🌐 **REST API** using `mux.Router`
+- 💾 **Redis Cache Integration** to store recent search results (default TTL: 30s)
 - ⚙️ **.env Configuration** support with `.env.example`
 - 🧪 **Unit tests** and provider mocks
 - 🧠 **Concurrency**: Provider calls are done concurrently for faster aggregation
-- 📊 **Smart Response**: 
-  - Cheapest flight
-  - Fastest flight
-  - Grouped provider offers
 
 ## 🔧 Setup
 
