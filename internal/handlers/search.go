@@ -59,7 +59,17 @@ func (h *FlightHandler) GetFlights(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	offers := flight.FetchAllFlightOffers(ctx, h.providers, search)
+	offers, err := flight.FetchAllFlightOffers(ctx, h.providers, search)
+	if err != nil {
+		log.Printf("%s %s error fetching flight offers: %v\n", r.Method, r.RequestURI, err)
+		utils.RespondError(w, http.StatusInternalServerError, "error fetching flight offers")
+		return
+	}
+
+	if len(offers) == 0 {
+		utils.RespondError(w, http.StatusNotFound, "no flight offers found")
+		return
+	}
 	if err := h.cache.Set(ctx, cacheKey, offers); err != nil {
 		log.Printf("%s %s cache set error: %v\n", r.Method, r.RequestURI, err)
 	}
