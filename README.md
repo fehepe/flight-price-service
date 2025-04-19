@@ -20,43 +20,15 @@ This service allows users to search for flights using multiple providers, aggreg
 
 ### Prerequisites
 - Go 1.23+
-- Docker (optional for containerized development)
+- Docker
 - [golangci-lint](https://golangci-lint.run/) for linting
 
-### Clone and Run
+### Run Locally
+
 ```bash
 git clone https://github.com/fehepe/flight-price-service.git
 cd flight-price-service
 cp .env.example .env
-```
-
-Edit `.env` and set values for:
-
-```env
-PORT=3000
-JWT_SECRET=your_secret
-
-MAX_FLIGHT_RESULTS_PER_CLIENT=10
-
-AMADEUS_API_KEY=your_key
-AMADEUS_API_SECRET=your_secret
-AMADEUS_BASE_URL=https://test.api.amadeus.com
-```
-
-## 🚀 Run Locally
-
-```bash
-go run ./cmd/flight-service
-```
-
-### Using Docker
-```bash
-docker build -t flight-service .
-docker run --rm -p 3000:3000 --env-file .env flight-service
-```
-
-Or with Compose:
-```bash
 docker-compose up --build
 ```
 
@@ -114,21 +86,16 @@ Returns:
 
 ```
 flight-price-service/
-├── cmd/flight-service          # Main entrypoint
+├── cmd/flight-service
 ├── internal/
+│   ├── cache/  
 │   ├── config/                 
 │   ├── middleware/       
 │   ├── handlers/
 │   ├── providers/
-│   └── services/flight/
+│   └── services/
 ├── pkg
 ├── .env.example
 ├── Dockerfile
 └── README.md
-```
-
----
-## 📦 Build for Production
-```bash
-docker build -t flight-service .
 ```

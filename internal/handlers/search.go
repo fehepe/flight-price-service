@@ -1,13 +1,13 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"sync"
 
+	"github.com/fehepe/flight-price-service/internal/cache"
 	"github.com/fehepe/flight-price-service/internal/providers"
 	"github.com/fehepe/flight-price-service/internal/services/flight"
-	"github.com/fehepe/flight-price-service/pkg/models"
 	"github.com/fehepe/flight-price-service/pkg/utils"
 )
 
@@ -23,11 +23,12 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 type FlightHandler struct {
-	Providers []providers.Provider
+	providers []providers.Provider
+	cache     cache.FlightCacher
 }
 
-func NewFlightHandler(providers []providers.Provider) *FlightHandler {
-	return &FlightHandler{Providers: providers}
+func NewFlightHandler(providers []providers.Provider, cache cache.FlightCacher) *FlightHandler {
+	return &FlightHandler{providers: providers, cache: cache}
 }
 
 func (h *FlightHandler) GetFlights(w http.ResponseWriter, r *http.Request) {
@@ -39,32 +40,29 @@ func (h *FlightHandler) GetFlights(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var (
-		allOffers []models.FlightOffer
-		mu        sync.Mutex
-		wg        sync.WaitGroup
+	cacheKey := fmt.Sprintf("%s:%s:%s:%d:%t",
+		search.Origin,
+		search.Destination,
+		search.DepartureDate.Format("2006-01-02"),
+		search.Adults,
+		search.NonStop,
 	)
 
-	for _, p := range h.Providers {
-		wg.Add(1)
-		go func(p providers.Provider) {
-			defer wg.Done()
-			offers, err := p.GetFlights(ctx, search)
-			if err != nil {
-				return
-			}
-			mu.Lock()
-			allOffers = append(allOffers, offers...)
-			mu.Unlock()
-		}(p)
+	cachedOffers, found, err := h.cache.Get(ctx, cacheKey)
+	if err != nil {
+		log.Printf("%s %s cache set get: %v\n", r.Method, r.RequestURI, err)
+		utils.RespondError(w, http.StatusInternalServerError, "cache error")
+		return
 	}
-	wg.Wait()
-
-	if len(allOffers) == 0 {
-		utils.RespondError(w, http.StatusNotFound, "no flight offers found")
+	if found {
+		utils.RespondJSON(w, http.StatusOK, flight.BuildSearchResponse(cachedOffers))
 		return
 	}
 
-	response := flight.BuildSearchResponse(allOffers)
-	utils.RespondJSON(w, http.StatusOK, response)
+	offers := flight.FetchAllFlightOffers(ctx, h.providers, search)
+	if err := h.cache.Set(ctx, cacheKey, offers); err != nil {
+		log.Printf("%s %s cache set error: %v\n", r.Method, r.RequestURI, err)
+	}
+
+	utils.RespondJSON(w, http.StatusOK, flight.BuildSearchResponse(offers))
 }

@@ -8,15 +8,18 @@ import (
 	"testing"
 	"time"
 
+	cachemock "github.com/fehepe/flight-price-service/internal/cache/mock"
 	"github.com/fehepe/flight-price-service/internal/providers"
 	"github.com/fehepe/flight-price-service/internal/providers/mock"
 	"github.com/fehepe/flight-price-service/pkg/models"
 )
 
 func TestGetFlights(t *testing.T) {
-	h := NewFlightHandler([]providers.Provider{
-		&mock.MockProvider{},
-	})
+	h := NewFlightHandler(
+		[]providers.Provider{mock.New(false)},
+		cachemock.NewMockCache(),
+	)
+
 	today := time.Now().AddDate(0, 0, 1).Format("2006-01-02")
 
 	tests := []struct {
