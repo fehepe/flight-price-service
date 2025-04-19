@@ -2,7 +2,8 @@ package flight
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/fehepe/flight-price-service/internal/providers"
@@ -10,28 +11,39 @@ import (
 )
 
 // FetchAllFlightOffers retrieves and merges flight offers from all providers concurrently.
-func FetchAllFlightOffers(ctx context.Context, providerList []providers.Provider, search models.FlightSearch) []models.FlightOffer {
+func FetchAllFlightOffers(ctx context.Context, providerList []providers.Provider, search models.FlightSearch) ([]models.FlightOffer, error) {
 	var (
-		allOffers []models.FlightOffer
-		mu        sync.Mutex
-		wg        sync.WaitGroup
+		wg   sync.WaitGroup
+		mu   sync.Mutex
+		all  []models.FlightOffer
+		errs []error
 	)
 
-	for _, provider := range providerList {
+	for _, p := range providerList {
 		wg.Add(1)
-		go func(p providers.Provider) {
+		go func(pr providers.Provider) {
 			defer wg.Done()
-			offers, err := p.GetFlights(ctx, search)
+			offers, err := pr.GetFlights(ctx, search)
+			mu.Lock()
+			defer mu.Unlock()
 			if err != nil {
-				log.Printf("provider error: %v", err)
+				errs = append(errs, err)
 				return
 			}
-			mu.Lock()
-			allOffers = append(allOffers, offers...)
-			mu.Unlock()
-		}(provider)
+			all = append(all, offers...)
+		}(p)
 	}
 
 	wg.Wait()
-	return allOffers
+
+	var combinedErr error
+	if len(errs) > 0 {
+		errMsgs := make([]string, len(errs))
+		for i, e := range errs {
+			errMsgs[i] = e.Error()
+		}
+		combinedErr = fmt.Errorf("provider errors: %s", strings.Join(errMsgs, "; "))
+	}
+
+	return all, combinedErr
 }

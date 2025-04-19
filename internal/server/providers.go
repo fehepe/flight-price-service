@@ -9,7 +9,7 @@ import (
 	"github.com/fehepe/flight-price-service/internal/providers/mock"
 )
 
-func MustLoadProviders() providers.Provider {
+func MustLoadProviders() []providers.Provider {
 	apiKey := os.Getenv("AMADEUS_API_KEY")
 	apiSecret := os.Getenv("AMADEUS_API_SECRET")
 	baseURL := os.Getenv("AMADEUS_API_BASE_URL")
@@ -19,10 +19,9 @@ func MustLoadProviders() providers.Provider {
 		log.Fatal("Missing one or more required Amadeus environment variables")
 	}
 
-	return providers.MultiProvider{
-		Providers: []providers.Provider{
-			amadeus.New(apiKey, apiSecret, baseURL, maxResults, nil),
-			mock.New(false),
-		},
+	return []providers.Provider{
+		amadeus.New(apiKey, apiSecret, baseURL, maxResults, nil),
+		mock.New(false),
 	}
+
 }
