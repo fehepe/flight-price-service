@@ -20,27 +20,27 @@ func GenerateToken(w http.ResponseWriter, r *http.Request) {
 	// Ensure JSON content
 	contentType := r.Header.Get("Content-Type")
 	if !strings.HasPrefix(contentType, "application/json") {
-		http.Error(w, "Content-Type must be application/json", http.StatusBadRequest)
+		utils.RespondError(w, http.StatusBadRequest, "Content-Type must be application/json")
 		return
 	}
 
 	// Read and decode body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "unable to read request body", http.StatusBadRequest)
+		utils.RespondError(w, http.StatusBadRequest, "unable to read request body")
 		return
 	}
 	defer r.Body.Close()
 
 	var req models.TokenRequest
 	if err := json.Unmarshal(body, &req); err != nil {
-		http.Error(w, "invalid JSON payload", http.StatusBadRequest)
+		utils.RespondError(w, http.StatusBadRequest, "invalid JSON payload")
 		return
 	}
 
 	// Validate input
 	if strings.TrimSpace(req.Username) == "" || strings.TrimSpace(req.Password) == "" {
-		http.Error(w, "username and password are required", http.StatusBadRequest)
+		utils.RespondError(w, http.StatusBadRequest, "username and password are required")
 		return
 	}
 
