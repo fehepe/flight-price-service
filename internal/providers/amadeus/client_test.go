@@ -13,14 +13,22 @@ import (
 )
 
 func TestGetFlights_Success(t *testing.T) {
+	t.Helper()
+
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
 		if strings.Contains(r.URL.Path, "/token") {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"access_token":"mock-token","expires_in":3600}`))
+			_, err := w.Write([]byte(`{"access_token":"mock-token","expires_in":3600}`))
+			if err != nil {
+				t.Fatalf("failed to write token response: %v", err)
+			}
 			return
 		}
+
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{
+		_, err := w.Write([]byte(`{
 			"data": [{
 				"itineraries": [{
 					"duration": "PT3H30M",
@@ -32,8 +40,11 @@ func TestGetFlights_Success(t *testing.T) {
 				"price": {"total": "199.99"}
 			}]
 		}`))
+		if err != nil {
+			t.Fatalf("failed to write flight response: %v", err)
+		}
 	}))
-	defer mockServer.Close()
+	t.Cleanup(mockServer.Close)
 
 	client := amadeus.New(
 		"fake-api-key",
@@ -57,7 +68,7 @@ func TestGetFlights_Success(t *testing.T) {
 	}
 
 	if len(flights) != 1 {
-		t.Errorf("expected 1 flight offer, got %d", len(flights))
+		t.Fatalf("expected 1 flight offer, got %d", len(flights))
 	}
 
 	if flights[0].Price != 199.99 {
@@ -65,16 +76,21 @@ func TestGetFlights_Success(t *testing.T) {
 	}
 
 	if flights[0].Duration != "PT3H30M" {
-		t.Errorf("unexpected duration: %s", flights[0].Duration)
+		t.Errorf("expected duration PT3H30M, got %s", flights[0].Duration)
 	}
 }
 
 func TestGetFlights_TokenError(t *testing.T) {
+	t.Helper()
+
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte(`{"error":"invalid_client"}`))
+		_, err := w.Write([]byte(`{"error":"invalid_client"}`))
+		if err != nil {
+			t.Fatalf("failed to write error response: %v", err)
+		}
 	}))
-	defer mockServer.Close()
+	t.Cleanup(mockServer.Close)
 
 	client := amadeus.New(
 		"invalid",
