@@ -8,21 +8,21 @@ This Go microservice fetches flight prices from multiple providers concurrently 
 
 ```
 flight-price-service/
-├── cmd/                  # Entry point (main.go)
+├── cmd/                  
 │   └── flight-service/
-├── internal/             # Application code
-│   ├── handlers/         # HTTP handlers
-│   ├── middleware/       # Auth and logging middleware
-│   ├── server/           # Server setup and router
-│   └── config/           # Environment loading
-├── pkg/                  # Shared types and utilities
-│   ├── models/           # API models
-│   └── utils/            # JSON response helpers
-├── .env.example          # Sample environment file
-├── .env                  # Local environment config
+├── internal/             
+│   ├── handlers/         
+│   ├── middleware/      
+│   ├── server/          
+│   └── config/          
+├── pkg/                  
+│   ├── models/           
+│   └── utils/            
+├── .env.example          
+├── .env                  
 ├── .gitignore
 ├── Dockerfile
-├── docker-compose.yml (optional)
+├── docker-compose.yml 
 ├── go.mod / go.sum
 └── README.md
 ```
