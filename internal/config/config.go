@@ -3,14 +3,15 @@ package config
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
 
-// LoadEnv reads .env and panics on error.
+// LoadEnv loads environment variables from a .env file.
 func LoadEnv() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("no .env file found, relying on real environment")
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatalf("failed to load .env file: %v", err)
 	}
 }
 
@@ -18,6 +19,16 @@ func LoadEnv() {
 func Get(key, fallback string) string {
 	if v, ok := os.LookupEnv(key); ok {
 		return v
+	}
+	return fallback
+}
+
+// getEnvInt reads an environment variable into an integer or returns the fallback value.
+func GetEnvInt(key string, fallback int) int {
+	if v, ok := os.LookupEnv(key); ok {
+		if iv, err := strconv.Atoi(v); err == nil {
+			return iv
+		}
 	}
 	return fallback
 }
