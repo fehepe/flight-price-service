@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fehepe/flight-price-service/internal/cache"
 	"github.com/fehepe/flight-price-service/internal/config"
 	"github.com/fehepe/flight-price-service/internal/handlers"
 	"github.com/fehepe/flight-price-service/internal/middleware"
@@ -17,31 +18,32 @@ import (
 )
 
 // NewRouter sets up routes, applying logging globally and auth on protected endpoints.
-func NewRouter(providerList []providers.Provider) *mux.Router {
-
+func NewRouter(providerList []providers.Provider, flightCache cache.FlightCacher) *mux.Router {
 	r := mux.NewRouter()
 	r.Use(middleware.Logging)
 	r.StrictSlash(true)
+
+	fh := handlers.NewFlightHandler(providerList, flightCache)
 
 	r.HandleFunc("/health", handlers.HealthCheck).Methods(http.MethodGet)
 	r.HandleFunc("/auth/token", handlers.GenerateToken).Methods(http.MethodPost)
 
 	flights := r.PathPrefix("/flights").Subrouter()
 	flights.Use(middleware.Auth)
-	fh := handlers.NewFlightHandler(providerList)
 	flights.HandleFunc("/search", fh.GetFlights).Methods(http.MethodGet)
 
 	return r
 }
 
 func Run(addr string) error {
-	return RunWithProvider(addr, MustLoadProviders())
+	cache := cache.NewFlightCacheFromConfig()
+	return RunWithProvider(addr, MustLoadProviders(), cache)
 }
 
-func RunWithProvider(addr string, provider providers.Provider) error {
+func RunWithProvider(addr string, provider providers.Provider, flightCache cache.FlightCacher) error {
 	srv := &http.Server{
 		Addr:           addr,
-		Handler:        NewRouter([]providers.Provider{provider}),
+		Handler:        NewRouter([]providers.Provider{provider}, flightCache),
 		ReadTimeout:    time.Duration(config.GetEnvInt("READ_TIMEOUT", 5)) * time.Second,
 		WriteTimeout:   time.Duration(config.GetEnvInt("WRITE_TIMEOUT", 10)) * time.Second,
 		IdleTimeout:    time.Duration(config.GetEnvInt("IDLE_TIMEOUT", 120)) * time.Second,

@@ -1,8 +1,29 @@
-version: "3.8"
+version: '3.8'
+
 services:
   flight-service:
     build: .
     ports:
       - "3000:3000"
-    env_file: .env
-    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - flight-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - flight-net
+
+volumes:
+  redis_data:
+
+networks:
+  flight-net:
