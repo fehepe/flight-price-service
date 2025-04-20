@@ -11,18 +11,24 @@ This service allows users to search for flights using multiple providers, aggreg
 - 💾 **Redis Cache Integration** to store recent search results (default TTL: 30s)
 - 🧪 **Unit tests** and provider mocks
 - 🧠 **Concurrency**: Provider calls are done concurrently for faster aggregation
+- 🔒 **Encrypted** credentials via git-crypt
 
 ## 🔧 Setup
 
 ### Prerequisites
 - Go 1.23+
 - Docker
+- **git-crypt** (for decrypting credentials)
 
 ### Run Locally
 
 ```bash
 git clone https://github.com/fehepe/flight-price-service.git
 cd flight-price-service
+# If this is your first time or you're an external contributor:
+# Unlock encrypted credentials (requires GPG key access)
+git-crypt unlock
+
 cp .env.example .env
 docker-compose up --build
 ```
