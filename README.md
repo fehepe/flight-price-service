@@ -5,11 +5,10 @@ This service allows users to search for flights using multiple providers, aggreg
 ## ✅ Features Implemented
 
 - 🔍 **Flight Search Aggregation** across multiple providers
-- 📡 **Amadeus API Integration** (OAuth2 and flight offer endpoints)
+- 📡 **AmadeusAPI, SerAPI Integrations** (OAuth2 and flight offer endpoints)
 - 🛡️ **JWT Authentication** support (with token generation endpoint)
 - 🌐 **REST API** using `mux.Router`
 - 💾 **Redis Cache Integration** to store recent search results (default TTL: 30s)
-- ⚙️ **.env Configuration** support with `.env.example`
 - 🧪 **Unit tests** and provider mocks
 - 🧠 **Concurrency**: Provider calls are done concurrently for faster aggregation
 
@@ -18,7 +17,6 @@ This service allows users to search for flights using multiple providers, aggreg
 ### Prerequisites
 - Go 1.23+
 - Docker
-- [golangci-lint](https://golangci-lint.run/) for linting
 
 ### Run Locally
 
@@ -63,8 +61,6 @@ Authorization: Bearer <your_token>
 | `origin`        | string  | ✅       | IATA code of departure airport (e.g., `SYD`) |
 | `destination`   | string  | ✅       | IATA code of arrival airport (e.g., `BKK`)   |
 | `departure_date`| string  | ✅       | Departure date in `YYYY-MM-DD` format        |
-| `adults`        | int     | ❌       | Number of adult travelers (default: `1`)     |
-| `non_stop`      | bool    | ❌       | Filter only non-stop flights (default: `false`) |
 
 Returns:
 ```json

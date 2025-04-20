@@ -40,12 +40,10 @@ func (h *FlightHandler) GetFlights(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cacheKey := fmt.Sprintf("%s:%s:%s:%d:%t",
+	cacheKey := fmt.Sprintf("%s:%s:%s",
 		search.Origin,
 		search.Destination,
 		search.DepartureDate.Format("2006-01-02"),
-		search.Adults,
-		search.NonStop,
 	)
 
 	cachedOffers, found, err := h.cache.Get(ctx, cacheKey)
