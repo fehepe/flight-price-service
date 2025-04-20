@@ -61,8 +61,6 @@ Authorization: Bearer <your_token>
 | `origin`        | string  | ✅       | IATA code of departure airport (e.g., `SYD`) |
 | `destination`   | string  | ✅       | IATA code of arrival airport (e.g., `BKK`)   |
 | `departure_date`| string  | ✅       | Departure date in `YYYY-MM-DD` format        |
-| `adults`        | int     | ❌       | Number of adult travelers (default: `1`)     |
-| `non_stop`      | bool    | ❌       | Filter only non-stop flights (default: `false`) |
 
 Returns:
 ```json
