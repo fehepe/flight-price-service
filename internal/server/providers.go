@@ -8,6 +8,7 @@ import (
 	"github.com/fehepe/flight-price-service/internal/providers/amadeus"
 	"github.com/fehepe/flight-price-service/internal/providers/mock"
 	"github.com/fehepe/flight-price-service/internal/providers/serpapi"
+	"github.com/fehepe/flight-price-service/internal/secret"
 )
 
 func mustEnv(key string) string {
@@ -20,18 +21,20 @@ func mustEnv(key string) string {
 
 func MustLoadProviders() []providers.Provider {
 	// Amadeus configuration
-	amadeusKey := mustEnv("AMADEUS_API_KEY")
-	amadeusSecret := mustEnv("AMADEUS_API_SECRET")
 	amadeusBaseURL := mustEnv("AMADEUS_API_BASE_URL")
 	maxResults := mustEnv("MAX_FLIGHT_RESULTS_PER_CLIENT")
 
 	// SerpAPI configuration
-	serpapiKey := mustEnv("SER_API_KEY")
 	serpapiBaseURL := mustEnv("SER_API_BASE_URL")
 
+	creds, err := secret.LoadCreds("credentials.json")
+	if err != nil {
+		log.Fatalf("cannot load credentials: %v", err)
+	}
+
 	return []providers.Provider{
-		amadeus.New(amadeusKey, amadeusSecret, amadeusBaseURL, maxResults, nil),
-		serpapi.New(serpapiKey, serpapiBaseURL, nil),
+		amadeus.New(creds.AmadeusAPIKey, creds.AmadeusAPISecret, amadeusBaseURL, maxResults, nil),
+		serpapi.New(creds.SerAPIKey, serpapiBaseURL, nil),
 		mock.New(false),
 	}
 }
