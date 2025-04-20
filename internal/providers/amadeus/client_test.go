@@ -58,8 +58,6 @@ func TestGetFlights_Success(t *testing.T) {
 		Origin:        "JFK",
 		Destination:   "LAX",
 		DepartureDate: time.Date(2025, 5, 2, 0, 0, 0, 0, time.UTC),
-		Adults:        1,
-		NonStop:       true,
 	}
 
 	flights, err := client.GetFlights(context.Background(), search)
@@ -104,11 +102,10 @@ func TestGetFlights_TokenError(t *testing.T) {
 		Origin:        "JFK",
 		Destination:   "LAX",
 		DepartureDate: time.Now().AddDate(0, 0, 1),
-		Adults:        1,
 	}
 
 	_, err := client.GetFlights(context.Background(), search)
-	if err == nil || !strings.Contains(err.Error(), "token error") {
-		t.Errorf("expected token error, got: %v", err)
+	if err == nil || !strings.Contains(err.Error(), "auth failed") {
+		t.Errorf("expected auth failed, got: %v", err)
 	}
 }

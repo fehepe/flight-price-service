@@ -52,21 +52,6 @@ func TestGetFlights(t *testing.T) {
 			query:      "/flights/search?origin=JF&destination=LAX&date=" + today,
 			wantStatus: http.StatusBadRequest,
 		},
-		{
-			name:       "invalid non_stop",
-			query:      "/flights/search?origin=JFK&destination=LAX&date=" + today + "&non_stop=yes",
-			wantStatus: http.StatusBadRequest,
-		},
-		{
-			name:       "invalid adults",
-			query:      "/flights/search?origin=JFK&destination=LAX&date=" + today + "&adults=ten",
-			wantStatus: http.StatusBadRequest,
-		},
-		{
-			name:       "too many adults",
-			query:      "/flights/search?origin=JFK&destination=LAX&date=" + today + "&adults=10",
-			wantStatus: http.StatusBadRequest,
-		},
 	}
 
 	for _, tt := range tests {

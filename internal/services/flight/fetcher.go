@@ -27,7 +27,7 @@ func FetchAllFlightOffers(ctx context.Context, providerList []providers.Provider
 			mu.Lock()
 			defer mu.Unlock()
 			if err != nil {
-				errs = append(errs, err)
+				errs = append(errs, fmt.Errorf("%T: %w", pr, err))
 				return
 			}
 			all = append(all, offers...)
