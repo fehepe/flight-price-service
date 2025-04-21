@@ -89,7 +89,7 @@
 									"pm.test('Token request succeeded', () => pm.response.to.have.status(200));",
 									"pm.test('Response has token', () => {",
 									"  const json = pm.response.json();",
-									"  pm.expect(json).to.have.property('access_token');",
+									"  pm.expect(json).to.have.property('token');",
 									"});",
 									"",
 									"// store token",
