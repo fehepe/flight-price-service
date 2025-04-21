@@ -20,7 +20,7 @@ This service allows users to search for flights using multiple providers, aggreg
 - Docker
 - **git‑crypt** (for decrypting `credentials.json`)
 
-## Installing git‑crypt
+### Installing git‑crypt
 
 ### macOS (Homebrew)
 ```bash
