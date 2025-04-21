@@ -6,7 +6,7 @@ import (
 
 	"github.com/fehepe/flight-price-service/internal/providers"
 	"github.com/fehepe/flight-price-service/internal/providers/amadeus"
-	"github.com/fehepe/flight-price-service/internal/providers/mock"
+	"github.com/fehepe/flight-price-service/internal/providers/priceline"
 	"github.com/fehepe/flight-price-service/internal/providers/serpapi"
 	"github.com/fehepe/flight-price-service/internal/secret"
 )
@@ -27,6 +27,9 @@ func MustLoadProviders() []providers.Provider {
 	// SerpAPI configuration
 	serApiBaseURL := mustEnv("SER_API_BASE_URL")
 
+	// PriceLine configuration
+	priceLineBaseURL := mustEnv("PRICE_LINE_API_BASE_URL")
+
 	// Load encrypted credentials.json
 	creds, err := secret.LoadCreds("credentials.json")
 	if err != nil {
@@ -40,10 +43,13 @@ func MustLoadProviders() []providers.Provider {
 	if creds.SerAPIKey == "" {
 		log.Fatal("SerpAPI credential (API key) must not be empty")
 	}
+	if creds.PriceLineAPIKey == "" {
+		log.Fatal("PriceLine credential (API key) must not be empty")
+	}
 
 	return []providers.Provider{
 		amadeus.New(creds.AmadeusAPIKey, creds.AmadeusAPISecret, amadeusBaseURL, maxResults, nil),
 		serpapi.New(creds.SerAPIKey, serApiBaseURL, nil),
-		mock.New(false),
+		priceline.New(creds.PriceLineAPIKey, priceLineBaseURL, nil),
 	}
 }
