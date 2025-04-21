@@ -83,7 +83,7 @@ Authorization: Bearer <your_token>
 |-----------------|---------|----------|---------------------------------------------|
 | `origin`        | string  | ✅       | IATA code of departure airport (e.g., `SYD`) |
 | `destination`   | string  | ✅       | IATA code of arrival airport (e.g., `BKK`)   |
-| `departure_date`| string  | ✅       | Departure date in `YYYY-MM-DD` format        |
+| `date`| string  | ✅       | Departure date in `YYYY-MM-DD` format        |
 
 Returns:
 ```json
