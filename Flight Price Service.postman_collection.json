@@ -94,7 +94,7 @@
 									"",
 									"// store token",
 									"const json = pm.response.json();",
-									"pm.environment.set('auth_token', json.access_token);"
+									"pm.environment.set('auth_token', json.token);"
 								]
 							}
 						}
