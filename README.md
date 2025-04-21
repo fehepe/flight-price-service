@@ -43,7 +43,7 @@ brew install git-crypt gnupg
    Contact the maintainer (`fehepe11@gmail.com`) so I can send you the gpg file.
 4. **Unlock encrypted credentials**
    ```bash
-   git-crypt unlock
+   git-crypt unlock <GPG-KEY-ID>
    ```
 5. **Start the service**
    ```bash
