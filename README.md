@@ -74,7 +74,7 @@ GET /health
 
 ### Search Flights
 ```http
-GET /flights/search?origin=SYD&destination=BKK&departure_date=2025-05-02
+GET /flights/search?origin=SYD&destination=BKK&date=2025-05-02
 Authorization: Bearer <your_token>
 ```
 **Query Parameters:**
