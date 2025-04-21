@@ -21,14 +21,12 @@ const (
 	defaultTimeout = 10 * time.Second
 )
 
-// Client wraps the PriceLine API.
 type Client struct {
 	apiKey  string
 	baseURL string
 	client  *http.Client
 }
 
-// New creates a new PriceLine client. Returns error if baseURL is invalid.
 func New(apiKey, baseURL string, httpClient *http.Client) providers.Provider {
 	if httpClient == nil {
 		httpClient = &http.Client{Timeout: defaultTimeout}
@@ -40,7 +38,6 @@ func New(apiKey, baseURL string, httpClient *http.Client) providers.Provider {
 	}
 }
 
-// ErrNoFlights is returned when no flight offers are found.
 var ErrNoFlights = fmt.Errorf("no flight offers found")
 
 func (c *Client) GetFlights(ctx context.Context, search models.FlightSearch) ([]models.FlightOffer, error) {
@@ -54,7 +51,7 @@ func (c *Client) GetFlights(ctx context.Context, search models.FlightSearch) ([]
 	return c.mapToOffers(listings), nil
 }
 
-func (c *Client) fetchListings(ctx context.Context, search models.FlightSearch) ([]models.Listing, error) {
+func (c *Client) fetchListings(ctx context.Context, search models.FlightSearch) ([]models.PriceLineListing, error) {
 	u, err := url.Parse(c.baseURL + "/flights/search-one-way")
 	if err != nil {
 		return nil, fmt.Errorf("invalid base URL %q: %w", c.baseURL, err)
@@ -91,7 +88,7 @@ func (c *Client) fetchListings(ctx context.Context, search models.FlightSearch) 
 }
 
 // mapToOffers converts API listings into our FlightOffer type.
-func (c *Client) mapToOffers(listings []models.Listing) []models.FlightOffer {
+func (c *Client) mapToOffers(listings []models.PriceLineListing) []models.FlightOffer {
 	offers := make([]models.FlightOffer, 0, len(listings))
 	for _, l := range listings {
 		if len(l.Slices) == 0 || len(l.Slices[0].Segments) == 0 || len(l.Airlines) == 0 {
