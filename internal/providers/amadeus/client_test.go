@@ -105,7 +105,7 @@ func TestGetFlights_TokenError(t *testing.T) {
 	}
 
 	_, err := client.GetFlights(context.Background(), search)
-	if err == nil || !strings.Contains(err.Error(), "auth failed") {
-		t.Errorf("expected auth failed, got: %v", err)
+	if err == nil || !strings.Contains(err.Error(), "token retrieval failed") {
+		t.Errorf("expected token retrieval failed, got: %v", err)
 	}
 }
