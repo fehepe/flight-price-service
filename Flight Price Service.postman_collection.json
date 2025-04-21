@@ -1,0 +1,198 @@
+{
+	"info": {
+		"_postman_id": "1f8bdac0-c79d-42ab-a62a-48585971a410",
+		"name": "Flight Price Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"description": "🚀 Collection for Flight Price Service API\n\nUse the **Auth → Get Token** request to fetch and store your bearer token. Then run the other folders."
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string",
+			"description": "Base URL for all requests"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string",
+			"description": "JWT bearer token (filled by Auth → Get Token tests)"
+		},
+		{
+			"key": "origin",
+			"value": "SYD",
+			"type": "string",
+			"description": "Default origin airport code"
+		},
+		{
+			"key": "destination",
+			"value": "BKK",
+			"type": "string",
+			"description": "Default destination airport code"
+		},
+		{
+			"key": "date",
+			"value": "2025-05-02",
+			"type": "string",
+			"description": "Default departure date (YYYY-MM-DD)"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{auth_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"description": "Obtain and store your JWT bearer token here",
+			"item": [
+				{
+					"name": "Get Token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/token",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"token"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// validate response",
+									"pm.test('Token request succeeded', () => pm.response.to.have.status(200));",
+									"pm.test('Response has token', () => {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json).to.have.property('access_token');",
+									"});",
+									"",
+									"// store token",
+									"const json = pm.response.json();",
+									"pm.environment.set('auth_token', json.access_token);"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Flights",
+			"description": "Search and retrieve flight offers",
+			"item": [
+				{
+					"name": "Search Flights",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/flights/search?origin={{origin}}&destination={{destination}}&date={{date}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"flights",
+								"search"
+							],
+							"query": [
+								{
+									"key": "origin",
+									"value": "{{origin}}"
+								},
+								{
+									"key": "destination",
+									"value": "{{destination}}"
+								},
+								{
+									"key": "date",
+									"value": "{{date}}"
+								}
+							]
+						},
+						"description": "Fetch available flights for the given route and date."
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Search # status is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Response is JSON', () => pm.response.to.be.json);",
+									"pm.test('Has at least one offer', () => {",
+									"  const offers = pm.response.json();",
+									"  pm.expect(offers.length).to.be.above(0);",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "System",
+			"description": "Basic health and diagnostics",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Verify that the service is up and running."
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Health check OK', () => pm.response.to.have.status(200));",
+									"pm.test('Response has uptime', () => {",
+									"  const json = pm.response.json();",
+									"  pm.expect(json).to.have.property('status', 'ok');",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}
