@@ -35,6 +35,18 @@
 			"value": "2025-05-02",
 			"type": "string",
 			"description": "Default departure date (YYYY-MM-DD)"
+		},
+		{
+			"key": "username",
+			"value": "user",
+			"type": "string",
+			"description": "Default username"
+		},
+		{
+			"key": "password",
+			"value": "pass",
+			"type": "string",
+			"description": "Default password"
 		}
 	],
 	"auth": {
