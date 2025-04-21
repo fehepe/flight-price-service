@@ -10,6 +10,7 @@ type Creds struct {
 	AmadeusAPIKey    string `json:"AMADEUS_API_KEY"`
 	AmadeusAPISecret string `json:"AMADEUS_API_SECRET"`
 	SerAPIKey        string `json:"SER_API_KEY"`
+	PriceLineAPIKey  string `json:"PRICE_LINE_API_KEY"`
 }
 
 func LoadCreds(path string) (*Creds, error) {

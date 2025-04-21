@@ -70,6 +70,7 @@ func (c *SerpAPIClient) doSearch(ctx context.Context, search models.FlightSearch
 	qp.Set("departure_id", search.Origin)
 	qp.Set("arrival_id", search.Destination)
 	qp.Set("outbound_date", search.DepartureDate.Format(dateLayout))
+	qp.Set("return_date", search.DepartureDate.AddDate(0, 0, 1).Format(dateLayout))
 	u.RawQuery = qp.Encode()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)

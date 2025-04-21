@@ -20,7 +20,7 @@ type token struct {
 	ExpiresAt   time.Time
 }
 
-type AmadeusClient struct {
+type Client struct {
 	apiKey           string
 	apiSecret        string
 	baseURL          string
@@ -33,7 +33,7 @@ func New(apiKey, apiSecret, baseURL, maxResults string, httpClient *http.Client)
 	if httpClient == nil {
 		httpClient = &http.Client{Timeout: 10 * time.Second}
 	}
-	return &AmadeusClient{
+	return &Client{
 		apiKey:           apiKey,
 		apiSecret:        apiSecret,
 		baseURL:          baseURL,
@@ -42,7 +42,7 @@ func New(apiKey, apiSecret, baseURL, maxResults string, httpClient *http.Client)
 	}
 }
 
-func (c *AmadeusClient) GetFlights(ctx context.Context, search models.FlightSearch) ([]models.FlightOffer, error) {
+func (c *Client) GetFlights(ctx context.Context, search models.FlightSearch) ([]models.FlightOffer, error) {
 	token, err := c.getToken()
 	if err != nil {
 		return nil, fmt.Errorf("token retrieval failed: %w", err)
@@ -103,14 +103,14 @@ func (c *AmadeusClient) GetFlights(ctx context.Context, search models.FlightSear
 	return offers, nil
 }
 
-func (c *AmadeusClient) getToken() (string, error) {
+func (c *Client) getToken() (string, error) {
 	if c.token != nil && time.Now().Before(c.token.ExpiresAt) {
 		return c.token.AccessToken, nil
 	}
 	return c.fetchNewToken()
 }
 
-func (c *AmadeusClient) fetchNewToken() (string, error) {
+func (c *Client) fetchNewToken() (string, error) {
 	form := url.Values{}
 	form.Set("grant_type", "client_credentials")
 	form.Set("client_id", c.apiKey)
