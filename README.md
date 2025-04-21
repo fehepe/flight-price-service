@@ -49,6 +49,11 @@ brew install git-crypt gnupg
    ```bash
    docker-compose up --build
    ```
+## 🚀 Postman Collection
+
+Import our Postman collection for testing:
+
+[Flight Price Service Collection](https://github.com/fehepe/flight-price-service/blob/main/Flight%20Price%20Service.postman_collection.json)
 
 ## 🔐 JWT Authentication
 
