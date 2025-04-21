@@ -32,7 +32,9 @@ brew install git-crypt gnupg
 1. **Clone the repo**
    ```bash
    git clone https://github.com/fehepe/flight-price-service.git
-   
+   ```
+
+   ```bash
    cd flight-price-service
    ```
 2. **Copy environment template**
