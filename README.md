@@ -27,17 +27,6 @@ This service allows users to search for flights using multiple providers, aggreg
 brew install git-crypt gnupg
 ```
 
-### Ubuntu/Debian
-```bash
-sudo apt-get update
-sudo apt-get install -y git-crypt gnupg
-```
-
-### Fedora/CentOS
-```bash
-sudo yum install -y git-crypt gnupg2
-```
-
 ## Run Locally
 
 1. **Clone the repo**
