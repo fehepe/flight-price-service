@@ -1,6 +1,5 @@
 package models
 
-// APIResponse models the top-level JSON structure.
 type PriceLineAPIResponse struct {
 	Data PriceLineData `json:"data"`
 }
